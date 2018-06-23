@@ -1,0 +1,27 @@
+{
+  "name": "scraper",
+  "version": "0.0.1",
+  "description": "scraper for TTH mike the frog",
+  "main": "scraper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/j-nordell/FSJS-Project6.git"
+  },
+  "keywords": [
+    "mike",
+    "scraper",
+    "shirt"
+  ],
+  "author": "Jennifer Nordell",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/j-nordell/FSJS-Project6/issues"
+  },
+  "homepage": "https://github.com/j-nordell/FSJS-Project6#readme",
+  "dependencies": {
+    "scrape-it": "^5.0.5"
+  }
+}
