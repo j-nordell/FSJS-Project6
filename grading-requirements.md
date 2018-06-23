@@ -6,8 +6,8 @@
 
 ### Command Line Interface and Dependency Management
 
-- [ ] Project includes a `package.json` file containing dependencies to run `node scraper.js`
-- [ ] Running `npm install` installs relevant dependencies
+- [x] Project includes a `package.json` file containing dependencies to run `node scraper.js`
+- [x] Running `npm install` installs relevant dependencies
 
 ### Folder Generation
 
@@ -15,9 +15,9 @@
 
 ### Research npm packages
 
-- [ ] Chosen scraping and CSV packages meet the following requirements on npm:
-  - [ ] 1,000 downloads
-  - [ ] Updated in the last 6 months
+- [x] Chosen scraping and CSV packages meet the following requirements on npm:
+  - [x] 1,000 downloads
+  - [x] Updated in the last 6 months
 
 ### Crawling
 
