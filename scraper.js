@@ -1,21 +1,13 @@
 'use strict';
 
-const scrapeIt = require("scrape-it");
-/*
-scrapeIt("http://shirts4mike.com/shirts.php", {
-   title: "title"
-}, (err,  data ) => {
-    console.log(data);
-}) */
-
-scrapeIt("https://ionicabizau.net", {
-    // Fetch the articles
-    articles: {
-        listItem: ".article"
-    }
+const scrape = require('website-scraper');
+const options = {
+  urls: ['http://shirts4mike.com/shirts.php'],
+  directory: './data',
+};
  
-}, (err,  data ) => {
-   // console.log(err || data)
 
-   console.log(data);
-})
+scrape(options, (error, result) => {
+    /* some code here */
+    console.log(result);
+});
