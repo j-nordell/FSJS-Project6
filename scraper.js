@@ -1,13 +1,14 @@
-'use strict';
 
-const scrape = require('website-scraper');
-const options = {
-  urls: ['http://shirts4mike.com/shirts.php'],
-  directory: './data',
-};
- 
 
-scrape(options, (error, result) => {
-    /* some code here */
-    console.log(result);
-});
+const scrapeIt = require('scrape-it');
+const mainPage = `http://shirts4mike.com/shirts.php`;
+
+
+
+scrapeIt(mainPage, {
+    title: "title"
+    }
+).then(({ data, response }) => {
+    console.log(`Status Code: ${response.statusCode}`);
+    console.log(data);
+})
