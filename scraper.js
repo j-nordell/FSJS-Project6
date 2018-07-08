@@ -4,10 +4,11 @@ const scrapeIt = require("scrape-it");
 const siteRoot = `http://shirts4mike.com`;
 const mainPage = `http://shirts4mike.com/shirts.php`;
 const dataDirectory = "./data";
-
+const timeNow = new Date();
+const formattedTime = `${timeNow.getHours()}:${timeNow.getMinutes()}:${timeNow.getSeconds()}`;
+const formatedDay = `${timeNow.getFullYear()}-${timeNow.getMonth()}-${timeNow.getSeconds()}`;
 
 scrapeIt(mainPage, {
-    title: "title",
     shirts: {
         listItem: ".products li",
         data: {
@@ -29,9 +30,22 @@ scrapeIt(mainPage, {
 })
 
 function scrapePage(pageURL) {
+    //let wholeURL = `${siteRoot}/${pageURL.url}`;
     scrapeIt(`${siteRoot}/${pageURL.url}`, {
-       price: "h1 .price"
+        title: "title",
+        price: "h1 .price",
+        imgURL: {
+            selector: "img",
+            attr: "src"
+        }
     }).then(({ data, response }) => {
-        console.log(data.price);
+       const scrapeResult = {
+           Title: data.title,
+           Price: data.price,
+           ImageURL: data.imgURL,
+           URL: `${siteRoot}/${pageURL.url}`,
+           Time: formattedTime
+       }
+       console.log(scrapeResult);
     })
 }
