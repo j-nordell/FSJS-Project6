@@ -4,7 +4,8 @@
   "description": "scraper for TTH mike the frog",
   "main": "scraper.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node scraper.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
   },
   "homepage": "https://github.com/j-nordell/FSJS-Project6#readme",
   "dependencies": {
+    "json2csv": "^4.1.5",
     "scrape-it": "^5.0.5"
   },
   "devDependencies": {}
