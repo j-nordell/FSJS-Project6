@@ -4,7 +4,7 @@ const http = require("http");
 const messaging = require("./messaging.js");
 const Json2csvParser = require("json2csv").Parser;
 const scrapeIt = require("scrape-it");
-const siteRoot = `http://shirts4mike.com`;
+const siteRoot = `http://tshirts4mike.com`;
 const mainPage = `http://shirts4mike.com/shirts.php`;
 const dataDirectory = "./data";
 const timeNow = new Date();
@@ -18,8 +18,8 @@ let shirtsResults = [];
 messaging.startMessage();
 messaging.scrapeMessage("entry point", mainPage);
 
-function writeErrorLog(error) {
-    fs.appendFile('./scraper-error.log',`${timeNow} ${error}\n`, function (err) {
+function writeErrorLog(friendlyError, error) {
+    fs.appendFile('./scraper-error.log',`${timeNow} ${friendlyError} Actual error: ${error}\n`, function (err) {
         if (err) throw err;
     });
 }
@@ -55,7 +55,8 @@ scrapeIt(mainPage, {
             fs.writeFile(`${dataDirectory}/${formatedDay}.csv`, csv, (err) => {
                 messaging.fileMessage(`${formatedDay}.csv`);
                 if(err) {
-                    writeErrorLog(err);
+                    let fError = `Could not write to file: ${err.path}`;
+                    writeErrorLog(fError, err);
                     messaging.errorMessage(`Could not write to file: ${err.path}`);
                     messaging.infoMessage(`More information found in scraper-error.log.`);
                 }
@@ -65,8 +66,9 @@ scrapeIt(mainPage, {
         };
     }, 5000);
 }).catch(function(err) {
-    writeErrorLog(err);
-    messaging.errorMessage("This website is currently unavailable");
+    let fError = "This website is currently unavailable.";
+    writeErrorLog(fError, err);
+    messaging.errorMessage(fError);
     messaging.infoMessage(`More information found in scraper-error.log.`);
 });
 
@@ -89,10 +91,9 @@ function scrapePage(pageURL) {
        };
        shirtsResults.push(scrapeResult);
     }).catch(function(err) {
-        writeErrorLog(err);
-        messaging.errorMessage("This website is currently unavailable");
+        let fError = "This website is currently unavailable.";
+        writeErrorLog(fError, err);
+        messaging.errorMessage(fError);
         messaging.infoMessage(`More information found in scraper-error.log.`);
     });
 }
-
-
