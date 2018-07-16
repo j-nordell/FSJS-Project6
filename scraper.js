@@ -1,6 +1,8 @@
 
 const fs = require("fs");
-const Json2csvParser = require('json2csv').Parser;
+const http = require("http");
+const messaging = require("./messaging.js");
+const Json2csvParser = require("json2csv").Parser;
 const scrapeIt = require("scrape-it");
 const siteRoot = `http://shirts4mike.com`;
 const mainPage = `http://shirts4mike.com/shirts.php`;
@@ -11,7 +13,20 @@ const formatedDay = `${timeNow.getFullYear()}-${timeNow.getMonth() + 1}-${timeNo
 const fields = ["Title", "Price", "ImageURL", "URL", "Time"];
 let shirtsResults = [];
 
+
+// message the user that the app has started
+messaging.startMessage();
+messaging.scrapeMessage("entry point", mainPage);
+
+function writeErrorLog(error) {
+    fs.appendFile('./scraper-error.log',`${timeNow} ${error}\n`, function (err) {
+        if (err) throw err;
+    });
+}
+
+// scrape the main entry point
 scrapeIt(mainPage, {
+    // retrieve the links to the subpages
     shirts: {
         listItem: ".products li",
         data: {
@@ -22,11 +37,14 @@ scrapeIt(mainPage, {
         }
     }
 }).then(({ data, response }) => {
-    if (!fs.existsSync(dataDirectory)){
+    // make the data directory if it doesn't already exist
+    if (!fs.existsSync(dataDirectory)) {
+        messaging.dirMessage(dataDirectory);
         fs.mkdirSync(dataDirectory);
     }
 
     for(let shirt of data.shirts) {
+        messaging.scrapeMessage(`subpage`, `${siteRoot}/${shirt.url}`);
         scrapePage(shirt);
     }
 
@@ -35,15 +53,23 @@ scrapeIt(mainPage, {
             const parser = new Json2csvParser({ fields });
             const csv = parser.parse(shirtsResults);
             fs.writeFile(`${dataDirectory}/${formatedDay}.csv`, csv, (err) => {
+                messaging.fileMessage(`${formatedDay}.csv`);
                 if(err) {
-                    console.log(`Could not write to file: ${err.path}`);
+                    writeErrorLog(err);
+                    messaging.errorMessage(`Could not write to file: ${err.path}`);
+                    messaging.infoMessage(`More information found in scraper-error.log.`);
                 }
             });
         } catch (err) {
             console.log(err);
         };
     }, 5000);
+}).catch(function(err) {
+    writeErrorLog(err);
+    messaging.errorMessage("This website is currently unavailable");
+    messaging.infoMessage(`More information found in scraper-error.log.`);
 });
+
 
 function scrapePage(pageURL) {
     scrapeIt(`${siteRoot}/${pageURL.url}`, {
@@ -62,6 +88,10 @@ function scrapePage(pageURL) {
            Time: formattedTime
        };
        shirtsResults.push(scrapeResult);
+    }).catch(function(err) {
+        writeErrorLog(err);
+        messaging.errorMessage("This website is currently unavailable");
+        messaging.infoMessage(`More information found in scraper-error.log.`);
     });
 }
 
