@@ -19,7 +19,7 @@ function scrapeMessage(description, url) {
 }
 
 function errorMessage(errMessage) {
-    console.log(chalk.bgKeyword("darkred")("ERROR:", chalk.bgBlack.keyword("darkred") (`\t${errMessage}`)));
+    console.log(chalk.bgKeyword("darkred")("ERROR:", chalk.bgBlack.keyword("darkred")(`\t${errMessage}`)));
 }
 
 function infoMessage(information) {

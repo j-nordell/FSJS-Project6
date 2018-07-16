@@ -4,7 +4,7 @@ const http = require("http");
 const messaging = require("./messaging.js");
 const Json2csvParser = require("json2csv").Parser;
 const scrapeIt = require("scrape-it");
-const siteRoot = `http://tshirts4mike.com`;
+const siteRoot = `http://shirts4mike.com`;
 const mainPage = `${siteRoot}/shirts.php`;
 const dataDirectory = "./data";
 const timeNow = new Date();
@@ -18,8 +18,8 @@ let shirtsResults = [];
 messaging.startMessage();
 messaging.scrapeMessage("entry point", mainPage);
 
-function writeErrorLog(friendlyError, error) {
-    fs.appendFile('./scraper-error.log',`${timeNow} ${friendlyError} Actual error: ${error}\n`, function (err) {
+function writeErrorLog(friendlyError, code) {
+    fs.appendFile('./scraper-error.log',`${timeNow}\t${friendlyError}\tStatus code: ${code}\n`, function (err) {
         if (err) throw err;
     });
 }
@@ -41,6 +41,13 @@ scrapeIt(mainPage, {
     if (!fs.existsSync(dataDirectory)) {
         messaging.dirMessage(dataDirectory);
         fs.mkdirSync(dataDirectory);
+    }
+     
+    if(response.statusCode < 200 || response.statusCode > 299) {
+        let friendly = checkStatusCode(response.statusCode);
+        let responseError = new Error(friendly);
+        responseError.statusCode = response.statusCode;
+        throw responseError;
     }
 
     for(let shirt of data.shirts) {
@@ -66,9 +73,8 @@ scrapeIt(mainPage, {
         };
     }, 5000);
 }).catch(function(err) {
-    let fError = "This website is currently unavailable.";
-    writeErrorLog(fError, err);
-    messaging.errorMessage(fError);
+    writeErrorLog(err.message, err.statusCode);
+    messaging.errorMessage(err.message);
     messaging.infoMessage(`More information found in scraper-error.log.`);
 });
 
@@ -89,11 +95,47 @@ function scrapePage(pageURL) {
            URL: `${siteRoot}/${pageURL.url}`,
            Time: formattedTime
        };
+       if(response.statusCode < 200 || response.statusCode > 299) {
+            let friendly = checkStatusCode(response.statusCode);
+            let responseError = new Error(friendly);
+            responseError.statusCode = response.statusCode;
+            throw responseError;
+        }
        shirtsResults.push(scrapeResult);
     }).catch(function(err) {
-        let fError = "This website is currently unavailable.";
-        writeErrorLog(fError, err);
-        messaging.errorMessage(fError);
+        writeErrorLog(err.message, err.statusCode);
+        messaging.errorMessage(err.message);
         messaging.infoMessage(`More information found in scraper-error.log.`);
     });
+}
+
+// Because scrape-it does not handle these blocks of error codes this logic had to be put in
+function checkStatusCode(codeNumber) {
+    let friendlyMessage = "";
+    switch(codeNumber) {
+        case 401:
+            friendlyMessage = "You are not authorized to use this site without first authenticating";
+            break;
+        case 403:
+            friendlyMessage = "Access to this URL is forbidden";
+            break;
+        case 404:
+            friendlyMessage = "The resource was not found at this address";
+            break;
+        case 410:
+            friendlyMessage = "The resource you requested has been removed";
+            break;
+        case 500:
+            friendlyMessage = "Unexpected error from the server";
+            break;
+        case 503:
+            friendlyMessage = "The service is temporarily unavailable";
+            break;
+        case 550:
+            friendlyMessage = "The account you are logged in with doesn't have permission to use this URL";
+            break;
+        default:
+            friendlyMessage = "Bummer! Something went wrong but we're not sure what!";
+    }
+    return friendlyMessage;
 }
